@@ -774,15 +774,37 @@ export default function App() {
                     <div className="stitle">Quick Actions</div>
                     <div className="qgrid">
                       {[
-                        {e:"🚔",l:"Police\n100",    bg:"#1a1030",c:"#7c6fff",a:()=>toast("Calling 100…")},
-                        {e:"📲",l:"Alert\nAll",     bg:"#0a1a18",c:"#00d4aa",a:()=>toast(`Alert sent to ${actC.length} contacts!`)},
-                        {e:"📞",l:"Fake\nCall",     bg:"#0d1a10",c:"#22dd88",a:()=>setSubTab("fakecall")},
-                        {e:"📍",l:"Copy\nLocation", bg:"#0a1220",c:"#06b6d4",a:()=>{navigator.clipboard?.writeText(gps.getSOSMessage?.());toast("SOS message copied!");}},
-                        {e:"📋",l:"Log\nIncident",  bg:"#1a130a",c:"#ffb800",a:()=>setSubTab("incidents")},
-                        {e:"🎤",l:"Voice\nHelp",    bg:"#1a0a18",c:"#ec4899",a:()=>toast("Say 'Help me'…")},
-                        {e:"🏥",l:"Ambulance\n108", bg:"#0a150a",c:"#22c55e",a:()=>toast("Calling 108…")},
-                        {e:"🔥",l:"Fire\n101",      bg:"#1a1008",c:"#ff8800",a:()=>toast("Calling 101…")},
-                        {e:"🕵️",l:"Discreet\nMode", bg:"#0a0a1a",c:"#8888cc",a:()=>{setDisc(true);toast("Calculator mode on. Type 1234 = to return.");}},
+                        {e:"🚔",l:"Police\n100",    bg:"#1a1030",c:"#7c6fff",a:()=>{ window.location.href="tel:100"; }},
+{e:"📲",l:"Alert\nAll",     bg:"#0a1a18",c:"#00d4aa",a:()=>{
+  if(actC.length===0){ toast("⚠ Add contacts first!"); return; }
+  const msg=encodeURIComponent(gps.getSOSMessage?.() ?? "🆘 I need help! Please respond immediately.");
+  actC.forEach(c=>{ const ph=c.phone.replace(/\D/g,""); window.open(`https://wa.me/${ph}?text=${msg}`,"_blank"); });
+  toast(`✅ Opening WhatsApp for ${actC.length} contact(s)!`);
+}},
+{e:"📞",l:"Fake\nCall",     bg:"#0d1a10",c:"#22dd88",a:()=>setSubTab("fakecall")},
+{e:"📍",l:"Copy\nLocation", bg:"#0a1220",c:"#06b6d4",a:()=>{
+  const msg=gps.getSOSMessage?.() ?? "🆘 I need help!";
+  navigator.clipboard?.writeText(msg)
+    .then(()=>toast("✅ SOS message copied!"))
+    .catch(()=>toast("⚠ Copy failed — try on phone"));
+}},
+{e:"📋",l:"Log\nIncident",  bg:"#1a130a",c:"#ffb800",a:()=>setSubTab("incidents")},
+{e:"🎤",l:"Voice\nHelp",    bg:"#1a0a18",c:"#ec4899",a:()=>{
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(!SR){ toast("⚠ Voice not supported on this browser"); return; }
+  const r=new SR();
+  r.start();
+  toast("🎤 Listening… say 'help'");
+  r.onresult=(e)=>{
+    const word=e.results[0][0].transcript.toLowerCase();
+    if(word.includes("help")||word.includes("sos")||word.includes("bachao")){ triggerSOS(); toast("🚨 Voice SOS triggered!"); }
+    else { toast(`Heard: "${word}" — say 'help' to trigger SOS`); }
+  };
+  r.onerror=()=>toast("⚠ Mic error — check permissions");
+}},
+{e:"🏥",l:"Ambulance\n108", bg:"#0a150a",c:"#22c55e",a:()=>{ window.location.href="tel:108"; }},
+{e:"🔥",l:"Fire\n101",      bg:"#1a1008",c:"#ff8800",a:()=>{ window.location.href="tel:101"; }},
+{e:"🕵️",l:"Discreet\nMode", bg:"#0a0a1a",c:"#8888cc",a:()=>{ setDisc(true); toast("Calculator mode on. Type 1234 = to return."); }},,
                       ].map((a,i)=>(
                         <div className="qcard" key={i} onClick={a.a}><div className="qi" style={{background:a.bg,color:a.c}}>{a.e}</div><div className="ql">{a.l}</div></div>
                       ))}
