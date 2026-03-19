@@ -8,10 +8,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico'],
       manifest: {
-        name: 'SafeGuard - Women Safety App',
-        short_name: 'SafeGuard',
+        name: 'SheShield - Women Safety App',
+        short_name: 'SheShield',
         description: 'Your personal safety companion',
         theme_color: '#ff1f6b',
         background_color: '#07070f',
@@ -26,8 +25,5 @@ export default defineConfig({
       }
     })
   ],
-  server: {
-    port: 5173,
-    open: true,
-  },
+  server: { port: 5173, open: true }
 })
